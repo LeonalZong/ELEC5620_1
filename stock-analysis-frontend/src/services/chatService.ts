@@ -30,11 +30,13 @@ export interface ChatHistory {
  */
 export const sendMessage = async (
   message: string,
-  sessionId: string
+  sessionId: string,
+  options?: { subject_user_id?: number }
 ): Promise<ChatMessage> => {
   const response = await api.post('/chat/message', {
     message,
-    session_id: sessionId
+    session_id: sessionId,
+    ...(options?.subject_user_id ? { subject_user_id: options.subject_user_id } : {})
   });
   return response.data;
 };
@@ -43,7 +45,13 @@ export const sendMessage = async (
  * Stream message (SSE)
  */
 export const streamChatMessage = async (
-message: string, sessionId: string, onChunk: (content: string) => void, onComplete: () => void, onError: (error: string) => void, p0: { subject_user_id: number; }) => {
+  message: string,
+  sessionId: string,
+  onChunk: (content: string) => void,
+  onComplete: () => void,
+  onError: (error: string) => void,
+  options?: { subject_user_id?: number }
+) => {
   try {
     const token = localStorage.getItem('access_token');
     
@@ -55,7 +63,8 @@ message: string, sessionId: string, onChunk: (content: string) => void, onComple
       },
       body: JSON.stringify({
         message,
-        session_id: sessionId
+        session_id: sessionId,
+        ...(options?.subject_user_id ? { subject_user_id: options.subject_user_id } : {})
       })
     });
 

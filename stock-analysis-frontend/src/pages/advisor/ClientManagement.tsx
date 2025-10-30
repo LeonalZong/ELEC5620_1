@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Table, Button, Space, Tag, message, Input } from 'antd';
 import { UserOutlined, EyeOutlined, SearchOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import api from '@/services/api';
+import { advisorService } from '@/services/advisorService';
 import type { User } from '@/types';
 
 const { Search } = Input;
@@ -19,8 +19,11 @@ const ClientManagement: React.FC = () => {
   const loadClients = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/advisor/clients');
-      setClients(response.data);
+      const list = await advisorService.getClients();
+      // map to User shape for table
+      // our table expects fields: id, username, email, is_active, last_login
+      // advisorService already returns that structure when backend ready; otherwise []
+      setClients(list as any);
     } catch (error) {
       message.error('Failed to load clients');
     } finally {
