@@ -137,7 +137,15 @@ const AdvisorAIAssistant: React.FC = () => {
         <Space align="start" direction="horizontal" style={{ maxWidth: '75%', display: 'flex', flexDirection: isUser ? 'row' : 'row-reverse' }}>
           <Avatar icon={isUser ? <UserOutlined /> : <RobotOutlined />} style={{ backgroundColor: isUser ? '#1890ff' : '#52c41a' }} />
           <Card style={{ backgroundColor: isUser ? '#e6f7ff' : '#f6ffed', border: 'none', borderRadius: 12 }} bodyStyle={{ padding: '12px 16px' }}>
-            {isUser ? <Text>{display}</Text> : <div className="markdown-content"><ReactMarkdown>{display}</ReactMarkdown>{isLastAI && loading && (<Spin size="small" style={{ marginLeft: 8 }} />)}</div>}
+            {isUser ? (
+              <Text>{display}</Text>
+            ) : (
+              <div className="markdown-content">
+                {/* 如果检测到 draft.token，则不渲染原始 JSON，改为摘要+按钮 */}
+                {draft.token ? null : <ReactMarkdown>{display}</ReactMarkdown>}
+                {isLastAI && loading && (<Spin size="small" style={{ marginLeft: 8 }} />)}
+              </div>
+            )}
             {!isUser && draft.token && (
               <div style={{ marginTop: 8 }}>
                 <Space>

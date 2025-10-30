@@ -12,7 +12,7 @@ from datetime import datetime
 import uuid
 
 from app.database import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.models.chat_message import ChatMessage as ChatMessageModel, MessageRole
 from app.schemas.chat import (
     ChatMessageRequest,
@@ -39,12 +39,18 @@ async def send_message(
     try:
         chat_service = get_chat_service()
         
+        # Determine target user id (advisor can specify a client)
+        target_user_id = current_user.id
+        if getattr(current_user, "role", None) == UserRole.ADVISOR and getattr(request, "subject_user_id", None):
+            target_user_id = int(request.subject_user_id)
+
         # Save user message
         user_message = ChatMessageModel(
             user_id=current_user.id,
             session_id=request.session_id,
             role=MessageRole.USER,
             content=request.message,
+            extra_data={"subject_user_id": target_user_id} if target_user_id != current_user.id else None,
             created_at=datetime.utcnow()
         )
         db.add(user_message)
@@ -54,7 +60,7 @@ async def send_message(
         result = await chat_service.chat(
             user_input=request.message,
             session_id=request.session_id,
-            user_id=current_user.id
+            user_id=target_user_id
         )
         
         if result["status"] == "error":
@@ -69,7 +75,7 @@ async def send_message(
             session_id=request.session_id,
             role=MessageRole.ASSISTANT,
             content=result["response"],
-            extra_data={"intermediate_steps": result.get("intermediate_steps", [])},
+            extra_data={"intermediate_steps": result.get("intermediate_steps", []), "subject_user_id": target_user_id},
             created_at=datetime.utcnow()
         )
         db.add(ai_message)
@@ -117,6 +123,11 @@ async def stream_message(
         db.add(user_message)
         db.commit()
         
+        # Determine target user id
+        target_user_id = current_user.id
+        if getattr(current_user, "role", None) == UserRole.ADVISOR and getattr(request, "subject_user_id", None):
+            target_user_id = int(request.subject_user_id)
+
         # Streaming response generator
         async def event_generator():
             full_response = ""
@@ -128,7 +139,7 @@ async def stream_message(
                 async for chunk in chat_service.chat_stream(
                     user_input=request.message,
                     session_id=request.session_id,
-                    user_id=current_user.id
+                    user_id=target_user_id
                 ):
                     full_response += chunk
                     yield f"data: {json.dumps({'type': 'content', 'content': chunk})}\n\n"
@@ -139,6 +150,7 @@ async def stream_message(
                     session_id=request.session_id,
                     role=MessageRole.ASSISTANT,
                     content=full_response,
+                    extra_data={"subject_user_id": target_user_id},
                     created_at=datetime.utcnow()
                 )
                 db.add(ai_message)

@@ -3,7 +3,7 @@ FastAPI Application Entry Point
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, stocks, portfolio, reports, alerts, admin, tasks, monitoring, chat
+from app.api import auth, stocks, portfolio, reports, alerts, admin, tasks, monitoring, chat, advisor
 from app.database import init_db
 from app.config import settings
 from app.core.error_handlers import setup_error_handlers
@@ -34,6 +34,7 @@ app.include_router(admin.router, prefix="/api/v1/admin", tags=["Admin"])
 app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["Background Tasks"])
 app.include_router(monitoring.router, prefix="/api/v1/monitoring", tags=["System Monitoring"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["AI Chat"])
+app.include_router(advisor.router, prefix="/api/v1/advisor", tags=["Advisor"])
 
 # Setup error handlers
 setup_error_handlers(app)

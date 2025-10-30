@@ -269,3 +269,5 @@ def generate_market_report(self):
 
 
 
+
+
