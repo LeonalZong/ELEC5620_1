@@ -43,12 +43,7 @@ export const sendMessage = async (
  * Stream message (SSE)
  */
 export const streamChatMessage = async (
-  message: string,
-  sessionId: string,
-  onChunk: (content: string) => void,
-  onComplete: () => void,
-  onError: (error: string) => void
-) => {
+message: string, sessionId: string, onChunk: (content: string) => void, onComplete: () => void, onError: (error: string) => void, p0: { subject_user_id: number; }) => {
   try {
     const token = localStorage.getItem('access_token');
     
