@@ -1,0 +1,57 @@
+=== Stock Analysis System Start Guide ===
+
+System upgraded to APScheduler - simple and reliable!
+
+🚀 Start the system:
+-----------
+Just start the FastAPI backend:
+
+  cd stock-analysis-system
+  uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+⚡️ New architecture benefits:
+-----------
+✓ No separate Celery worker/beat processes needed
+✓ All tasks run inside the FastAPI process
+✓ Code changes take effect immediately; no multi-process restarts
+✓ Logs go straight to console for easy debugging
+✓ Simpler, more reliable, easier to maintain
+
+📊 The system will automatically:
+-----------
+- Check price alerts (every 1 minute, cumulative trigger_count mechanism)
+  * Monitor all tracked stocks in real-time
+  * Trigger alert after trigger_count reaches 5
+  * Support cumulative change from baseline price
+
+✨ Background tasks include:
+-----------
+- ✅ Price alert checks (every minute) - via APScheduler
+- Stock data updates (extensible)
+- News data updates (extensible)
+
+📝 Viewing logs:
+-----------
+- All logs are printed to console
+- See task execution in real time
+- Includes detailed debug info (e.g., trigger_count changes)
+
+🛑 Stop the system:
+-----------
+Press Ctrl+C to stop uvicorn; the scheduler shuts down gracefully
+
+💡 Restart the system:
+-----------
+Just restart FastAPI; no other processes to manage:
+  
+  1. Ctrl+C to stop
+  2. Run uvicorn app.main:app --host 0.0.0.0 --port 8000 again
+
+🔍 Monitoring:
+-----------
+On startup, console shows:
+  - "✅ APScheduler started successfully"
+  - Every minute: "🔥 Starting price alert check..."
+  - Each alert's check result and trigger_count changes
+
+===========================

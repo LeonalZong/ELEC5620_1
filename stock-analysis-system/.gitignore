@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test_*.py
+*_test.py
+tests/
+test/
+
+# Documentation files
+*.md
+docs/
+README.md
+ARCHITECTURE.md
+PROJECT_STRUCTURE.md
+DEVELOPMENT_GUIDE.md
+QUICK_START.md
+
+# Celery beat schedule files
+celerybeat-schedule*
+celerybeat-schedule-shm
+celerybeat-schedule-wal
+
+# Backup files
+*.backup
+.env.backup
+
+# Demo and setup files
+demo_*.py
+setup_*.py
+init_*.py
+docker_*.sh
+start.sh
+
+# Logs directory
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
