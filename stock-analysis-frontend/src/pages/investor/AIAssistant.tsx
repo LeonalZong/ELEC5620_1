@@ -167,10 +167,23 @@ What would you like me to analyze?`,
   };
 
   // Render message
+  const tryExtractDraft = (text: string): { token?: string; diff?: string } => {
+    try {
+      const codeBlockMatch = text.match(/```[\s\S]*?\{[\s\S]*\}[\s\S]*?```/);
+      const jsonMatch = codeBlockMatch ? codeBlockMatch[0].replace(/```/g, '') : text;
+      const obj = JSON.parse(jsonMatch.match(/\{[\s\S]*\}/)?.[0] || '{}');
+      if (obj.status === 'draft' && obj.token) {
+        return { token: String(obj.token), diff: String(obj.diff_summary || '') };
+      }
+    } catch {}
+    return {};
+  };
+
   const renderMessage = (msg: Message, index: number) => {
     const isUser = msg.role === 'user';
     const isLastAIMessage = msg.role === 'assistant' && index === messages.length - 1;
     const displayContent = isLastAIMessage && streamingContent ? streamingContent : msg.content;
+    const draft = !isUser ? tryExtractDraft(displayContent) : {};
 
     return (
       <div
@@ -182,7 +195,7 @@ What would you like me to analyze?`,
           animation: 'fadeIn 0.3s ease-in'
         }}
       >
-        <Space align="start" direction={isUser ? 'horizontal' : 'horizontal-reverse'} style={{ maxWidth: '75%' }}>
+        <Space align="start" direction="horizontal" style={{ maxWidth: '75%', display: 'flex', flexDirection: isUser ? 'row' : 'row-reverse' }}>
           {/* Avatar */}
           <Avatar
             icon={isUser ? <UserOutlined /> : <RobotOutlined />}
@@ -210,6 +223,15 @@ What would you like me to analyze?`,
                 {isLastAIMessage && loading && (
                   <Spin size="small" style={{ marginLeft: '8px' }} />
                 )}
+              </div>
+            )}
+            {!isUser && draft.token && (
+              <div style={{ marginTop: 8 }}>
+                <Space>
+                  <Button type="primary" size="small" onClick={() => setInput(`confirm ${draft.token}`)}>Confirm</Button>
+                  <Button size="small" onClick={() => setInput(`cancel ${draft.token}`)}>Cancel</Button>
+                </Space>
+                {draft.diff && <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>{draft.diff}</div>}
               </div>
             )}
             <div style={{ marginTop: '8px', fontSize: '12px', color: '#999' }}>
