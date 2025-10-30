@@ -7,6 +7,7 @@ import {
   WalletOutlined,
   FileTextOutlined,
   BarChartOutlined,
+  RobotOutlined,
   LogoutOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -16,6 +17,12 @@ import type { MenuProps } from 'antd';
 // Import actual components
 import AdvisorDashboard from './AdvisorDashboard';
 import ClientManagement from './ClientManagement';
+import ClientPortfolio from './ClientPortfolio';
+import AdvisorReports from './Reports';
+import AdvisorAnalytics from './Analytics';
+import AdvisorPortfolios from './Portfolios';
+import ReportDetail from './ReportDetail';
+import AdvisorAIAssistant from './AIAssistant';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -60,6 +67,12 @@ const AdvisorLayout: React.FC = () => {
       icon: <BarChartOutlined />,
       label: 'Analytics',
       onClick: () => navigate('/advisor/analytics'),
+    },
+    {
+      key: 'ai-assistant',
+      icon: <RobotOutlined />,
+      label: 'AI Assistant',
+      onClick: () => navigate('/advisor/ai-assistant'),
     },
   ];
 
@@ -140,9 +153,12 @@ const AdvisorLayout: React.FC = () => {
             <Routes>
               <Route path="/" element={<AdvisorDashboard />} />
               <Route path="/clients" element={<ClientManagement />} />
-              <Route path="/portfolios" element={<PortfoliosPlaceholder />} />
-              <Route path="/reports" element={<ReportsPlaceholder />} />
-              <Route path="/analytics" element={<AnalyticsPlaceholder />} />
+              <Route path="/clients/:id" element={<ClientPortfolio />} />
+              <Route path="/portfolios" element={<AdvisorPortfolios />} />
+              <Route path="/reports" element={<AdvisorReports />} />
+              <Route path="/reports/:id" element={<ReportDetail />} />
+              <Route path="/analytics" element={<AdvisorAnalytics />} />
+              <Route path="/ai-assistant" element={<AdvisorAIAssistant />} />
             </Routes>
           </div>
         </Content>

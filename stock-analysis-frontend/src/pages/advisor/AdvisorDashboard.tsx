@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Statistic, Table, Tag, Button, Space, message } from 'antd';
 import { UserOutlined, TeamOutlined, StockOutlined, AlertOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import api from '@/services/api';
+import { advisorService } from '@/services/advisorService';
 
 const AdvisorDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -21,8 +21,8 @@ const AdvisorDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/advisor/dashboard');
-      setStats(response.data);
+      const data = await advisorService.getDashboard();
+      setStats(data);
     } catch (error) {
       message.error('Failed to load dashboard data');
     } finally {

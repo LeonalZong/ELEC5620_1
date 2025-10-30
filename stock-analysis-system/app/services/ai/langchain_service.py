@@ -33,6 +33,26 @@ from app.services.ai.agents.analysis_tools import (
     StockRiskInput
 )
 
+# Portfolio management tools (read/write with confirmation)
+from app.services.ai.agents.portfolio_management_agent import (
+    view_portfolio,
+    list_tracked_stocks,
+    add_holding,
+    reduce_holding,
+    update_holding,
+    delete_holding,
+    track_stock,
+    untrack_stock,
+    ViewPortfolioInput,
+    ListTrackedStocksInput,
+    AddHoldingInput,
+    ReduceHoldingInput,
+    UpdateHoldingInput,
+    DeleteHoldingInput,
+    TrackStockInput,
+    UntrackStockInput,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -83,8 +103,14 @@ Communication style:
 - Format responses with clear sections and bullet points
 
 Important notes:
-- You can only ANALYZE data, NOT execute trades or modify alerts/portfolio
-- If users ask to buy/sell stocks or create/delete alerts, politely explain this interface is for analysis only
+- You ARE allowed to manage portfolio data via registered tools, but ALL write actions MUST follow a two-step confirmation flow:
+  1) First call returns a DRAFT object with {status:"draft", token, diff_summary, details}
+  2) Only after the user explicitly confirms, call the same tool with confirm=true and the token to execute
+  3) When ANY tool returns a draft or executed result, you MUST surface the tool result as a RAW JSON code block, with no extra prose before/after the code block. Example:
+     ```json
+     {"status":"draft","token":"abc123","diff_summary":"...","details":{...}}
+     ```
+     The UI parses this JSON to render Confirm/Cancel. Do not paraphrase or omit the token.
 - Always cite the specific data sources when presenting numbers
 - **USER IDENTITY**: The user is already authenticated. You DON'T need to ask for user ID or login info.
   All tools automatically access the logged-in user's data. Just call the tools directly.
@@ -160,6 +186,56 @@ Remember: Be helpful, accurate, and insightful! Don't hesitate to collect fresh 
                 name="analyze_stock_risk",
                 description="Analyze an individual stock's risk (volatility, max drawdown, Beta, risk level). Note: for single stock, not portfolio.",
                 args_schema=StockRiskInput
+            ),
+            # ----- Portfolio viewing & tracking (read) -----
+            StructuredTool.from_function(
+                func=partial(view_portfolio, user_id=user_id),
+                name="view_portfolio",
+                description="View current portfolio holdings and optional summary for the current user.",
+                args_schema=ViewPortfolioInput
+            ),
+            StructuredTool.from_function(
+                func=partial(list_tracked_stocks, user_id=user_id),
+                name="list_tracked_stocks",
+                description="List tracked stocks for the current user.",
+                args_schema=ListTrackedStocksInput
+            ),
+            # ----- Portfolio write actions with confirmation -----
+            StructuredTool.from_function(
+                func=partial(add_holding, user_id=user_id),
+                name="add_holding",
+                description="Add or increase a holding. Returns draft first; require confirm=true with token to execute.",
+                args_schema=AddHoldingInput
+            ),
+            StructuredTool.from_function(
+                func=partial(reduce_holding, user_id=user_id),
+                name="reduce_holding",
+                description="Reduce quantity of an existing holding. Draft → confirm flow required.",
+                args_schema=ReduceHoldingInput
+            ),
+            StructuredTool.from_function(
+                func=partial(update_holding, user_id=user_id),
+                name="update_holding",
+                description="Update holding fields (quantity/price/notes). Draft → confirm flow required.",
+                args_schema=UpdateHoldingInput
+            ),
+            StructuredTool.from_function(
+                func=partial(delete_holding, user_id=user_id),
+                name="delete_holding",
+                description="Delete a holding. Draft → confirm flow required.",
+                args_schema=DeleteHoldingInput
+            ),
+            StructuredTool.from_function(
+                func=partial(track_stock, user_id=user_id),
+                name="track_stock",
+                description="Track a stock for the current user. Draft → confirm flow required.",
+                args_schema=TrackStockInput
+            ),
+            StructuredTool.from_function(
+                func=partial(untrack_stock, user_id=user_id),
+                name="untrack_stock",
+                description="Untrack a stock for the current user. Draft → confirm flow required.",
+                args_schema=UntrackStockInput
             )
         ]
         
